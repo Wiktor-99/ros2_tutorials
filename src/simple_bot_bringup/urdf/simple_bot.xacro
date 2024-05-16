@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="diffdrive_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="simple_bot" xmlns:xacro="http://ros.org/wiki/xacro">
     <xacro:property name="base_width" value="0.2" />
     <xacro:property name="base_length" value="0.8" />
     <xacro:property name="base_height" value="0.4" />
