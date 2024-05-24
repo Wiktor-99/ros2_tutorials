@@ -21,7 +21,7 @@ public:
   {
     using namespace std::placeholders;
 
-    this->action_server_ = rclcpp_action::create_server<Fibonacci>(
+    action_server_ = rclcpp_action::create_server<Fibonacci>(
       this,
       "fibonacci",
       [this](const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const Fibonacci::Goal> goal){return handle_goal(uuid, goal);},
@@ -36,14 +36,14 @@ private:
     [[maybe_unused]] const rclcpp_action::GoalUUID & uuid,
     std::shared_ptr<const Fibonacci::Goal> goal)
   {
-    RCLCPP_INFO(this->get_logger(), "Received goal request with order %d", goal->order);
+    RCLCPP_INFO(get_logger(), "Received goal request with order %d", goal->order);
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
 
   rclcpp_action::CancelResponse handle_cancel(
     [[maybe_unused]] const std::shared_ptr<GoalHandleFibonacci> goal_handle)
   {
-    RCLCPP_INFO(this->get_logger(), "Received request to cancel goal");
+    RCLCPP_INFO(get_logger(), "Received request to cancel goal");
     return rclcpp_action::CancelResponse::ACCEPT;
   }
 
@@ -56,7 +56,7 @@ private:
 
   void execute(const std::shared_ptr<GoalHandleFibonacci> goal_handle)
   {
-    RCLCPP_INFO(this->get_logger(), "Executing goal");
+    RCLCPP_INFO(get_logger(), "Executing goal");
     rclcpp::Rate loop_rate(1);
     const auto goal = goal_handle->get_goal();
     auto feedback = std::make_shared<Fibonacci::Feedback>();
@@ -69,12 +69,12 @@ private:
       if (goal_handle->is_canceling()) {
         result->sequence = sequence;
         goal_handle->canceled(result);
-        RCLCPP_INFO(this->get_logger(), "Goal canceled");
+        RCLCPP_INFO(get_logger(), "Goal canceled");
         return;
       }
       sequence.push_back(sequence[i] + sequence[i - 1]);
       goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(), "Publish feedback");
+      RCLCPP_INFO(get_logger(), "Publish feedback");
 
       loop_rate.sleep();
     }
@@ -82,7 +82,7 @@ private:
     if (rclcpp::ok()) {
       result->sequence = sequence;
       goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(), "Goal succeeded");
+      RCLCPP_INFO(get_logger(), "Goal succeeded");
     }
   }
 };

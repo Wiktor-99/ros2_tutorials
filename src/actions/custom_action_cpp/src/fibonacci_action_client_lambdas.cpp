@@ -21,34 +21,34 @@ public:
   explicit FibonacciActionClient(const rclcpp::NodeOptions & options)
   : Node("fibonacci_action_client", options)
   {
-    this->client_ptr_ = rclcpp_action::create_client<Fibonacci>(
+    client_ptr_ = rclcpp_action::create_client<Fibonacci>(
       this,
       "fibonacci");
 
-    this->timer_ = this->create_wall_timer(std::chrono::milliseconds(500), [this](){send_goal();});
+    timer_ = create_wall_timer(std::chrono::milliseconds(500), [this](){send_goal();});
   }
 
   void send_goal()
   {
     using namespace std::placeholders;
 
-    this->timer_->cancel();
+    timer_->cancel();
 
-    if (!this->client_ptr_->wait_for_action_server()) {
-      RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
+    if (!client_ptr_->wait_for_action_server()) {
+      RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
       rclcpp::shutdown();
     }
 
     auto goal_msg = Fibonacci::Goal();
     goal_msg.order = 10;
 
-    RCLCPP_INFO(this->get_logger(), "Sending goal");
+    RCLCPP_INFO(get_logger(), "Sending goal");
 
     auto send_goal_options = rclcpp_action::Client<Fibonacci>::SendGoalOptions();
     send_goal_options.goal_response_callback = [this](const GoalHandleFibonacci::SharedPtr & goal_handle) { goal_response_callback(goal_handle); };
     send_goal_options.feedback_callback = [this](GoalHandleFibonacci::SharedPtr gh, const std::shared_ptr<const Fibonacci::Feedback> feedback) { feedback_callback(gh, feedback); };
     send_goal_options.result_callback = [this](const GoalHandleFibonacci::WrappedResult & result) {result_callback(result);};
-    this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
+    client_ptr_->async_send_goal(goal_msg, send_goal_options);
   }
 
 private:
@@ -58,9 +58,9 @@ private:
   void goal_response_callback(const GoalHandleFibonacci::SharedPtr & goal_handle)
   {
     if (!goal_handle) {
-      RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+      RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
     } else {
-      RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
+      RCLCPP_INFO(get_logger(), "Goal accepted by server, waiting for result");
     }
   }
 
@@ -73,7 +73,7 @@ private:
     for (auto number : feedback->partial_sequence) {
       ss << number << " ";
     }
-    RCLCPP_INFO(this->get_logger(), ss.str().c_str());
+    RCLCPP_INFO(get_logger(), ss.str().c_str());
   }
 
   void result_callback(const GoalHandleFibonacci::WrappedResult & result)
@@ -82,13 +82,13 @@ private:
       case rclcpp_action::ResultCode::SUCCEEDED:
         break;
       case rclcpp_action::ResultCode::ABORTED:
-        RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+        RCLCPP_ERROR(get_logger(), "Goal was aborted");
         return;
       case rclcpp_action::ResultCode::CANCELED:
-        RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+        RCLCPP_ERROR(get_logger(), "Goal was canceled");
         return;
       default:
-        RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+        RCLCPP_ERROR(get_logger(), "Unknown result code");
         return;
     }
     std::stringstream ss;
@@ -96,7 +96,7 @@ private:
     for (auto number : result.result->sequence) {
       ss << number << " ";
     }
-    RCLCPP_INFO(this->get_logger(), ss.str().c_str());
+    RCLCPP_INFO(get_logger(), ss.str().c_str());
     rclcpp::shutdown();
   }
 };
